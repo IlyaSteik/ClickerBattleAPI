@@ -11,5 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "request": "^2.88.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IlyaSteik/ClickerBattleAPI.git"
+  },
+  "homepage": "https://github.com/IlyaSteik/ClickerBattleAPI"
 }
