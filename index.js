@@ -92,7 +92,7 @@ class Callback {
     }
 
     onEvent(func) {
-        this.app.post('/callback', (req, res) => func(req.body ? JSON.parse(req.body) : {}));
+        this.app.post('/callback', (req, res) => func(req.body));
     }
 }
 
