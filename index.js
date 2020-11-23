@@ -41,9 +41,61 @@ class API {
 
     callback = {
         setUrl: async url => await this.call('callback.setUrl', {url})
+    };
+
+}
+
+class Callback {
+
+    constructor(token) {
+        this.token = token;
+    }
+
+    async run(port = 8080) {
+        const
+            bodyParser = require('body-parser'),
+            app = require('express')();
+
+        let
+            server;
+
+        app.use(function (req, res, next) {
+            res.header('Access-Control-Allow-Methods', 'GET, POST');
+            res.header('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+            res.header('Access-Control-Allow-Credentials', true);
+            res.header('Access-Control-Allow-Origin', '*');
+            if (req.method === 'OPTIONS') {
+                res.status(200);
+            }
+            next();
+        });
+        app.use(bodyParser.json());
+
+        app.get('/callback', (req, res) => res.send({token: this.token}));
+
+        server = require('http').createServer(app);
+
+        server.listen(port);
+
+        this.app = app;
+
+        return await new Promise((res, rej) => {
+            require('dns').lookup(require('os').hostname(), function (error, address) {
+                this.address = `http://${address}:${port}/callback`;
+                res(true);
+            }.bind(this));
+        });
+    }
+
+    getAddress() {
+        return this.address;
+    }
+
+    onEvent(func) {
+        this.app.post('/callback', (req, res) => func(req.body ? JSON.parse(req.body) : {}));
     }
 }
 
 module.exports = {
-    API
+    API, Callback
 };
