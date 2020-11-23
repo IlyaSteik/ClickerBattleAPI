@@ -155,7 +155,7 @@ true
 }
 ```
 
-## callback.setUrl
+## callback.setUrl (В разработке)
 
 **Описание:**
 
