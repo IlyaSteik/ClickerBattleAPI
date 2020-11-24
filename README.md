@@ -241,7 +241,7 @@ const
 callback.run(3000); // Можно указать свой порт; по стандарту — 8080
 callback.onEvent((type, data) => {
     // Работаем с событиями
-    if(type === EventType.TRANSFER){
+    if(type === EventType.TRANSFER) {
         console.log('New transfer: ', data);
     }
 });
