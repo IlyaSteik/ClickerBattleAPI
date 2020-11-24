@@ -1,4 +1,4 @@
-# ClickerBattleAPI
+# ClickerBattle API
 NodeJS библиотека для работы с API приложения «Битва Кликеров».
 
 # Установка
@@ -164,7 +164,7 @@ true
 
 **Описание:**
 
-Установить адрес Callback API. При запросе, на URL будет сделан GET запрос; Ваш сервер должен вернуть JSON-объект с параметром token, равным Вашему API токену.
+Установить адрес Callback API. При запросе, на URL будет сделан GET запрос; Ваш сервер должен вернуть JSON-объект с параметром user_id, равным Вашему vk_user_id.
 
 **Параметры:**
 
@@ -190,7 +190,7 @@ true
 ```
 {
     event: 'transfer',
-    transfer: {
+    data: {
         fromId: 245481845,
         amount: 100
     }
@@ -235,14 +235,14 @@ true
 
 ```
 const
-    {Callback} = require('@uly4nov/clickerbattle-api'),
-    token = 'YOUR_TOKEN',
-    clicker = new API(token),
-    callback = new Callback(token);
+    {Callback, EventType} = require('@uly4nov/clickerbattle-api'),
+    callback = new Callback('YOUR_TOKEN');
 
-await callback.run(3000); // Можно указать свой порт; по стандарту: 8080
-callback.onEvent(data => {
+callback.run(3000); // Можно указать свой порт; по стандарту — 8080
+callback.onEvent((type, data) => {
     // Работаем с событиями
-    console.log(data);
+    if(type === EventType.TRANSFER){
+        console.log('New transfer: ', data);
+    }
 });
 ```

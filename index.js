@@ -11,7 +11,6 @@ class API {
         const
             user_id = (await this.call('token.checkAccess')).user_id,
             access = user_id > 0;
-
         if (access)
             this.user_id = user_id;
         else
@@ -33,25 +32,31 @@ class API {
                     else
                         res(answer);
                 } catch (e) {
-                    res({error: {code: -1}});
+                    res({error: {code: -1, text: e.toString()}});
                 }
             });
         });
     }
 
-    users = {
-        get: async () => await this.call('users.get'),
-        getDay: async () => await this.call('users.getDay'),
-        transfer: async (user_id, amount) => await this.call('users.transfer', {user_id, amount})
+    get users() {
+        return {
+            get: async () => await this.call('users.get'),
+            getDay: async () => await this.call('users.getDay'),
+            transfer: async (user_id, amount) => await this.call('users.transfer', {user_id, amount})
+        }
     };
 
-    bill = {
-        create: async (user_id, amount) => await this.call('bill.create', {user_id, amount}),
-        getById: async bill_id => await this.call('bill.create', {bill_id})
+    get bill() {
+        return {
+            create: async (user_id, amount) => await this.call('bill.create', {user_id, amount}),
+            getById: async bill_id => await this.call('bill.create', {bill_id})
+        }
     };
 
-    callback = {
-        setUrl: async url => await this.call('callback.setUrl', {url})
+    get callback() {
+        return {
+            setUrl: async url => await this.call('callback.setUrl', {url})
+        }
     };
 }
 
@@ -59,6 +64,7 @@ class Callback {
 
     constructor(token) {
         this.token = token;
+        this.api = new API(this.token);
     }
 
     async run(port = 8080) {
@@ -71,43 +77,33 @@ class Callback {
             res.header('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
             res.header('Access-Control-Allow-Credentials', true);
             res.header('Access-Control-Allow-Origin', '*');
-            if (req.method === 'OPTIONS') {
-                res.status(200);
-            }
             next();
         });
         app.use(bodyParser.json());
+        app.get('/callback', (req, res) => res.send({user_id: this.api.user_id}));
 
-        app.get('/callback', (req, res) => res.send({token: this.token}));
-
-        const server = require('http').createServer(app);
-
-        server.listen(port);
+        require('http').createServer(app).listen(port);
 
         this.app = app;
-
-        return await new Promise((res, rej) => {
-            require('dns').lookup(require('os').hostname(), function (error, address) {
-                this.address = `http://${address}:${port}/callback`;
-                res(true);
-            }.bind(this));
-        });
-    }
-
-    getAddress() {
-        return this.address;
+        this.port = port;
     }
 
     async onEvent(func) {
-        const api = new API(this.token);
-        let accept = await api.callback.setUrl(this.getAddress());
+        let accept = await this.api.call('callback.setUrl', {port: this.port});
         if (accept)
-            this.app.post('/callback', (req, res) => func(req.body));
+            this.app.post('/callback', (req, res) => {
+                func(req.body.event, req.body.data);
+                res.send({status: true});
+            });
         else
-            throw accept;
+            throw new Error(JSON.stringify(accept));
     }
 }
 
+const EventType = {
+    TRANSFER: 'transfer'
+};
+
 module.exports = {
-    API, Callback
+    API, Callback, EventType
 };
