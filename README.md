@@ -61,6 +61,7 @@ console.log(await clicker.users.transfer(245481845, 1)) // Выведет true (
     trHistory: <история_переводов>,
     day: <ваша_статистика_за_день>,
     apiToken: <ваш_токен>,
+    apiCallbackUrl: <callback_url>,
     banned: <статус_блокировки>,
     banReason: <причина_блокировки>,
     name: <ваше_имя>,
@@ -181,9 +182,9 @@ true
 
 **События:**
 
-| Название | Параметры                                                      | Описание события     |
-|----------|----------------------------------------------------------------|----------------------|
-|transfer  |```{ fromId: <от_кого_платёж>, amount: <количество_кликов> }``` |Поступил новый перевод|
+| Название | Параметры                                                                                       | Описание события     |
+|----------|--------------------------------------------------------------------------|----------------------|
+|transfer  |```{ fromId: <от_кого_платёж>, amount: <количество_кликов>, ?bill_id: <идентификатор_счёта> }``` |Поступил новый перевод|
 
 **Пример нового события:**
 ```
@@ -240,14 +241,8 @@ const
     callback = new Callback(token);
 
 await callback.run(3000); // Можно указать свой порт; по стандарту: 8080
-const address = callback.getAddress(); // Адрес типа http://68.234.56.22:3000/callback
-let response = await clicker.callback.setUrl(address); // Устанавливаем callback через API
-if (response) {
-    callback.onEvent(data => {
-        // Работаем с событиями
-        console.log(data);
-    });
-} else {
-    console.log('Something went wrong', response);
-}
+callback.onEvent(data => {
+    // Работаем с событиями
+    console.log(data);
+});
 ```

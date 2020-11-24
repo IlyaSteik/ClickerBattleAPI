@@ -4,15 +4,26 @@ class API {
 
     constructor(token) {
         this.token = token;
+        this.checkToken();
+    }
+
+    async checkToken() {
+        const
+            user_id = (await this.call('token.checkAccess')).user_id,
+            access = user_id > 0;
+
+        if (access)
+            this.user_id = user_id;
+        else
+            throw new Error('Wrong token');
     }
 
     async call(method, params) {
-        let str = [];
-        for (let p in params)
-            if (params.hasOwnProperty(p))
-                str.push(encodeURIComponent(p) + '=' + encodeURIComponent(params[p]));
+        const query = params ? Object.keys(params).map((value) =>
+            encodeURIComponent(value) + '=' + encodeURIComponent(params[value])
+        ).join('&') : '';
 
-        const url = `https://ulyanov.site/clickerbattle/api/${method}?token=${this.token}&${str.join('&')}`;
+        const url = `https://ulyanov.site/clickerbattle/api/${method}?token=${this.token}&${query}`;
         return await new Promise((res, rej) => {
             request.get({url}, function (err, httpResponse, body) {
                 try {
@@ -42,7 +53,6 @@ class API {
     callback = {
         setUrl: async url => await this.call('callback.setUrl', {url})
     };
-
 }
 
 class Callback {
@@ -55,9 +65,6 @@ class Callback {
         const
             bodyParser = require('body-parser'),
             app = require('express')();
-
-        let
-            server;
 
         app.use(function (req, res, next) {
             res.header('Access-Control-Allow-Methods', 'GET, POST');
@@ -73,7 +80,7 @@ class Callback {
 
         app.get('/callback', (req, res) => res.send({token: this.token}));
 
-        server = require('http').createServer(app);
+        const server = require('http').createServer(app);
 
         server.listen(port);
 
@@ -91,8 +98,13 @@ class Callback {
         return this.address;
     }
 
-    onEvent(func) {
-        this.app.post('/callback', (req, res) => func(req.body));
+    async onEvent(func) {
+        const api = new API(this.token);
+        let accept = await api.callback.setUrl(this.getAddress());
+        if (accept)
+            this.app.post('/callback', (req, res) => func(req.body));
+        else
+            throw accept;
     }
 }
 
