@@ -14,7 +14,7 @@ class API {
         if (access)
             this.user_id = user_id;
         else
-            throw new Error('Wrong token');
+            throw new Error(JSON.stringify({error: {code: -2, text: 'Неверный токен'}}));
     }
 
     async call(method, params) {
