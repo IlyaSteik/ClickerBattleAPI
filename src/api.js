@@ -42,6 +42,7 @@ class API {
     get users() {
         return {
             get: async () => await this.call('users.get'),
+            getById: async (user_id) => await this.call('users.getById', {user_id}),
             getDay: async () => await this.call('users.getDay'),
             transfer: async (user_id, amount) => await this.call('users.transfer', {user_id, amount})
         }

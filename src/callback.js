@@ -11,7 +11,7 @@ class Callback {
         this.api = new API(this.token);
     }
 
-    async run(port = 8080) {
+    async run(path = 'callback', port = 8080) {
         app.use(function (req, res, next) {
             res.header('Access-Control-Allow-Methods', 'GET, POST');
             res.header('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
@@ -19,17 +19,18 @@ class Callback {
             next();
         });
         app.use(bodyParser.json());
-        app.get('/callback', (req, res) => res.send({user_id: this.api.user_id}));
+        app.get(`/${path}`, (req, res) => res.send({user_id: this.api.user_id}));
         http.createServer(app).listen(port);
 
         this.app = app;
         this.port = port;
+        this.path = path;
     }
 
     async onEvent(func) {
-        let accept = await this.api.call('callback.setUrl', {port: this.port});
+        let accept = await this.api.call('callback.setUrl', {path: this.path, port: this.port});
         if (accept === true)
-            this.app.post('/callback', (req, res) => {
+            this.app.post(`/${this.path}`, (req, res) => {
                 func(req.body.event, req.body.data);
                 res.send({status: true});
             });
