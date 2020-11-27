@@ -1,3 +1,10 @@
+<div align="center">
+  <a href="https://vk.com/clicker/">
+    <img width="100" height="100" src="https://i.ibb.co/GkQ7HJd/clickerbattle.png">
+  </a>
+</div>
+
+
 # ClickerBattle API
 NodeJS библиотека для работы с API приложения «Битва Кликеров».
 
@@ -247,3 +254,6 @@ callback.onEvent((type, data) => {
     }
 });
 ```
+
+[npm]: https://img.shields.io/npm/v/@vkontakte/create-vk-mini-app.svg
+[npm-url]: https://npmjs.com/package/@vkontakte/create-vk-mini-app
