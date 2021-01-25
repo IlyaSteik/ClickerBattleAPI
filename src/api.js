@@ -48,6 +48,12 @@ class API {
         }
     };
 
+    get games() {
+        return {
+            get: async (count = 10, offset = 0) => await this.call('games.get', {count, offset})
+        }
+    };
+
     get bill() {
         return {
             create: async (user_id, amount) => await this.call('bill.create', {user_id, amount}),
