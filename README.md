@@ -22,7 +22,7 @@ const
 ```
 
 # Пример работы
-```
+```javascript
 console.log(await clicker.users.get) // Выведет объект пользователя
 console.log(await clicker.users.transfer(245481845, 1)) // Выведет true (Если на счету больше 0 кликов)
 ```
