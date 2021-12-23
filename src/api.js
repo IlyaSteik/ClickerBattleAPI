@@ -1,5 +1,5 @@
 const
-    apiUrl = 'https://ulyanov.site/clickerbattle/api/',
+    apiUrl = 'https://clicker-battle.ru/app/api/',
     fetch = require('node-fetch');
 
 class API {
@@ -11,7 +11,7 @@ class API {
 
     async checkToken() {
         const
-            user_id = (await this.call('token.checkAccess')).user_id,
+            user_id = (await this.call('users.get')).id,
             access = user_id > 0;
         if (access)
             this.user_id = user_id;
@@ -31,7 +31,7 @@ class API {
                     res.json()
                 )
                 .then(answer =>
-                    answer.response ?
+                    (answer.response && answer.response !== null) ?
                         res(answer.response) : res(answer)
                 ).catch(err =>
                 res({error: {code: -3, text: err.toString()}})
@@ -43,14 +43,57 @@ class API {
         return {
             get: async () => await this.call('users.get'),
             getById: async (user_id) => await this.call('users.getById', {user_id}),
-            getDay: async () => await this.call('users.getDay'),
-            transfer: async (user_id, amount) => await this.call('users.transfer', {user_id, amount})
+            getTop: async () => await this.call('users.getTop')
+        }
+    };
+
+    get transfers() {
+        return {
+            send: async (toId, amount) => await this.call('transfers.send', {toId, amount}),
+            getHistory: async (limit = 10, offset = 0) => await this.call('transfers.getHistory', {limit, offset})
         }
     };
 
     get games() {
         return {
-            get: async (count = 10, offset = 0) => await this.call('games.get', {count, offset})
+            getHistory: async (limit = 10, offset = 0) => await this.call('games.getHistory', {limit, offset})
+        }
+    };
+
+    get persons() {
+        return {
+            get: async () => await this.call('persons.get')
+        }
+    };
+
+    get shop() {
+        return {
+            getItems: async () => await this.call('shop.getItems')
+        }
+    };
+
+    get cursor() {
+        return {
+            getList: async () => await this.call('cursor.getList')
+        }
+    };
+
+    get banner() {
+        return {
+            getList: async () => await this.call('banner.getList')
+        }
+    };
+
+    get bannerstat() {
+        return {
+            getList: async () => await this.call('bannerstat.getList')
+        }
+    };
+
+    get referal() {
+        return {
+            getList: async (limit = 10, offset = 0) => await this.call('referal.getList', {limit, offset}),
+            getOwner: async () => await this.call('referal.getOwner')
         }
     };
 

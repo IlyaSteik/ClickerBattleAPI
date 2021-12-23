@@ -29,13 +29,15 @@ class Callback {
 
     async onEvent(func) {
         let accept = await this.api.call('callback.setUrl', {path: this.path, port: this.port});
-        if (accept === true)
+        if (typeof accept === 'string') {
+            console.log('Callback running on: ' + accept);
             this.app.post(`/${this.path}`, (req, res) => {
                 func(req.body.event, req.body.data);
                 res.send({status: true});
             });
-        else
+        } else {
             throw new Error(JSON.stringify(accept));
+        }
     }
 }
 
